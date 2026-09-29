@@ -1,0 +1,2 @@
+aiohttp==3.9.0
+tornado==6.4

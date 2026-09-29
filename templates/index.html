@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Match Analyzer</title>
+    <link rel="stylesheet" href="{{ static_url('css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>⚽ Match Analyzer</h1>
+            <p>Data-driven analysis with transparent verification</p>
+        </div>
+        
+        <div class="search-card">
+            <form id="searchForm" method="GET" action="/analyze">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="home">Home Team</label>
+                        <input type="text" id="home" name="home" placeholder="Enter home team" required>
+                        
+                    </div>
+                    
+                    <div class="vs-divider">vs</div>
+                    
+                    <div class="form-group">
+                        <label for="away">Away Team</label>
+                        <input type="text" id="away" name="away" placeholder="Enter away team" required>
+                        
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    Analyze Match →
+                </button>
+            </form>
+        </div>
+        
+        <div class="info-section">
+            <h2>How it works</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <span class="info-number">1</span>
+                    <h3>Data Collection</h3>
+                    <p>We fetch xG, form, injuries, odds, and head-to-head from verified sources.</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-number">2</span>
+                    <h3>Probability Model</h3>
+                    <p>Our statistical model combines xG, form, rest, and injuries to calculate fair probabilities.</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-number">3</span>
+                    <h3>Value Analysis</h3>
+                    <p>We compare model odds against bookmaker odds to identify positive expected value bets.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="verification-info">
+            <h3>Data Verification</h3>
+            <p>Each data point is labeled with its source:</p>
+            <ul>
+                <li><span class="badge verified">🟢</span> Verified — retrieved from a trusted data provider</li>
+                <li><span class="badge assumption">🟡</span> Assumption — statistical inference from the model</li>
+                <li><span class="badge unavailable">🔴</span> Unavailable — couldn't be verified or retrieved</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="{{ static_url('js/app.js') }}"></script>
+</body>
+</html>

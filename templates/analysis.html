@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Analysis - Soccer Analyzer</title>
+    <link rel="stylesheet" href="{{ static_url('css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← New Analysis</a>
+        
+        <!-- Match Header -->
+        <div class="match-header">
+            <div class="match-card">
+                <div class="team">
+                    <div class="team-name">{{ data["home"] }}</div>
+                </div>
+                <div class="match-meta">
+                    <div class="vs-badge">VS</div>
+                    <div class="match-date">Today</div>
+                </div>
+                <div class="team">
+                    <div class="team-name">{{ data["away"] }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confidence Meter -->
+        <div class="confidence-section">
+            <div class="confidence-header">
+                <h3>Model Confidence</h3>
+                <span class="confidence-percent">{{ "{:.0%}".format(data["confidence"]) }}</span>
+            </div>
+            <div class="confidence-bar">
+                <div class="confidence-fill" style="width: {{ data["confidence_percent"] }}%"></div>
+            </div>
+        </div>
+        
+        <!-- xG Analysis -->
+        <div class="data-panel">
+            <h3>Expected Goals (xG)</h3>
+            <div class="xg-grid">
+                <div class="xg-box">
+                    <div class="xg-team">{{ data["home"] }}</div>
+                    <div class="xg-value">{{ data["home_xg"].__format__(".2f") }}</div>
+                    <div class="xg-label">xG</div>
+                    <div class="verification {{ data["verification"]["xg"][0] }}">{{ data["verification"]["xg"][0] }}</div>
+                </div>
+                <div class="xg-divider"></div>
+                <div class="xg-box">
+                    <div class="xg-team">{{ data["away"] }}</div>
+                    <div class="xg-value">{{ "%.2f" % data["away_xg"] }}</div>
+                    <div class="xg-label">xG</div>
+                    <div class="verification {{ data["verification"]["xg"][1] }}">{{ data["verification"]["xg"][1] }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 1X2 Odds Analysis -->
+        <div class="data-panel">
+            <h3>Match Winner (1X2)</h3>
+            <table class="odds-table">
+                <thead>
+                    <tr>
+                        <th>Outcome</th>
+                        <th>Model</th>
+                        <th>Fair Odds</th>
+                        <th>Book</th>
+                        <th>Edge</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if data["edges"]["home"] >= 3.0 %}
+                    <tr class="highlight-positive">
+                    {% else %}
+                    <tr>
+                    {% end %}
+                        <td><strong>{{ data["home"] }}</strong></td>
+                        <td>{{ "{:.1%}".format(data["model_1x2"]["home"]) }}</td>
+                        <td>{{ "%.2f" % data["fair_odds_1x2"]["home"] }}</td>
+                        <td>{{ "%.2f" % data["odds_1x2"]["home"] }}</td>
+                        <td class="{% if data["edges"]["home"] >= 3.0 %}positive{% elif data["edges"]["home"] >= 1.0 %}neutral{% else %}negative{% end %}">
+                            {{ "{:+.1f}%".format(data["edges"]["home"]) }}
+                        </td>
+                    </tr>
+                    {% if data["edges"]["draw"] >= 3.0 %}
+                    <tr class="highlight-positive">
+                    {% else %}
+                    <tr>
+                    {% end %}
+                        <td><strong>Draw</strong></td>
+                        <td>{{ "{:.1%}".format(data["model_1x2"]["draw"]) }}</td>
+                        <td>{{ "%.2f" % data["fair_odds_1x2"]["draw"] }}</td>
+                        <td>{{ "%.2f" % data["odds_1x2"]["draw"] }}</td>
+                        <td class="{% if data["edges"]["draw"] >= 3.0 %}positive{% elif data["edges"]["draw"] >= 1.0 %}neutral{% else %}negative{% end %}">
+                            {{ "{:+.1f}%".format(data["edges"]["draw"]) }}
+                        </td>
+                    </tr>
+                    {% if data["edges"]["away"] >= 3.0 %}
+                    <tr class="highlight-positive">
+                    {% else %}
+                    <tr>
+                    {% end %}
+                        <td><strong>{{ data["away"] }}</strong></td>
+                        <td>{{ "{:.1%}".format(data["model_1x2"]["away"]) }}</td>
+                        <td>{{ "%.2f" % data["fair_odds_1x2"]["away"] }}</td>
+                        <td>{{ "%.2f" % data["odds_1x2"]["away"] }}</td>
+                        <td class="{% if data["edges"]["away"] >= 3.0 %}positive{% elif data["edges"]["away"] >= 1.0 %}neutral{% else %}negative{% end %}">
+                            {{ "{:+.1f}%".format(data["edges"]["away"]) }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Goals Analysis -->
+        <div class="data-panel">
+            <h3>Total Goals (Over/Under 2.5)</h3>
+            <table class="odds-table compact">
+                <thead>
+                    <tr>
+                        <th>Market</th>
+                        <th>Model</th>
+                        <th>Fair Odds</th>
+                        <th>Book</th>
+                        <th>Edge</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr {% if data["edges"]["over"] >= 3.0 %}class="highlight-positive"{% end %}>
+                        <td><strong>Over 2.5</strong></td>
+                        <td>{{ "{:.1%}".format(data["model_goals"]["over"]) }}</td>
+                        <td>{{ "%.2f" % (1.0 / data["model_goals"]["over"]) }}</td>
+                        <td>{{ "%.2f" % data["odds_goals"]["over"] }}</td>
+                        <td class="{% if data["edges"]["over"] >= 3.0 %}positive{% elif data["edges"]["over"] >= 1.0 %}neutral{% else %}negative{% end %}">
+                            {{ "{:+.1f}%".format(data["edges"]["over"]) }}
+                        </td>
+                    </tr>
+                    <tr {% if data["edges"]["under"] >= 3.0 %}class="highlight-positive"{% end %}>
+                        <td><strong>Under 2.5</strong></td>
+                        <td>{{ "{:.1%}".format(data["model_goals"]["under"]) }}</td>
+                        <td>{{ "%.2f" % (1.0 / data["model_goals"]["under"]) }}</td>
+                        <td>{{ "%.2f" % data["odds_goals"]["under"] }}</td>
+                        <td class="{% if data["edges"]["under"] >= 3.0 %}positive{% elif data["edges"]["under"] >= 1.0 %}neutral{% else %}negative{% end %}">
+                            {{ "{:+.1f}%".format(data["edges"]["under"]) }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- BTTS Analysis -->
+        <div class="data-panel">
+            <h3>Both Teams to Score</h3>
+            <table class="odds-table compact">
+                <thead>
+                    <tr>
+                        <th>Market</th>
+                        <th>Model</th>
+                        <th>Fair Odds</th>
+                        <th>Book</th>
+                        <th>Edge</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr {% if data["edges"]["btts"] >= 3.0 %}class="highlight-positive"{% end %}>
+                        <td><strong>Yes</strong></td>
+                        <td>{{ "{:.1%}".format(data["model_btts"]) }}</td>
+                        <td>{{ "%.2f" % (1.0 / data["model_btts"]) }}</td>
+                        <!-- FIX IS RIGHT HERE: Add ["yes"] to avoid the TypeError -->
+                        <td>{{ "%.2f" % data["odds_btts"]["yes"] }}</td> 
+                        <td class="{% if data["edges"]["btts"] >= 3.0 %}positive{% elif data["edges"]["btts"] >= 1.0 %}neutral{% else %}negative{% end %}">
+                            {{ "{:+.1f}%".format(data["edges"]["btts"]) }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Form & Context -->
+        <div class="context-grid">
+            <div class="data-panel">
+                <h3>Recent Form</h3>
+                <div class="form-display">
+                    <div class="form-team">
+                        <div class="form-name">{{ data["home"] }}</div>
+                        <div class="form-results">
+                            {% for result in data["home_form"] %}
+                                <span class="form-badge form-{{ result.lower() }}">{{ result }}</span>
+                            {% end %}
+                        </div>
+                        <div class="verification {{ data["verification"]["form"][0] }}">{{ data["verification"]["form"][0] }}</div>
+                    </div>
+                    <div class="form-divider"></div>
+                    <div class="form-team">
+                        <div class="form-name">{{ data["away"] }}</div>
+                        <div class="form-results">
+                            {% for result in data["away_form"] %}
+                                <span class="form-badge form-{{ result.lower() }}">{{ result }}</span>
+                            {% end %}
+                        </div>
+                        <div class="verification {{ data["verification"]["form"][1] }}">{{ data["verification"]["form"][1] }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-panel">
+                <h3>Squad Availability</h3>
+                <div class="availability">
+                    <div class="availability-team">
+                        <div class="team-name">{{ data["home"] }}</div>
+                        {% if data["home_injuries"] %}
+                            {% for injury in data["home_injuries"] %}
+                                <div class="injury-badge">{{ injury }}</div>
+                            {% end %}
+                        {% else %}
+                            <div class="no-injuries">No reported absences</div>
+                        {% end %}
+                        <div class="verification {{ data["verification"]["injuries"][0] }}">{{ data["verification"]["injuries"][0] }}</div>
+                    </div>
+                    
+                    <div class="availability-team">
+                        <div class="team-name">{{ data["away"] }}</div>
+                        {% if data["away_injuries"] %}
+                            {% for injury in data["away_injuries"] %}
+                                <div class="injury-badge">{{ injury }}</div>
+                            {% end %}
+                        {% else %}
+                            <div class="no-injuries">No reported absences</div>
+                        {% end %}
+                        <div class="verification {{ data["verification"]["injuries"][1] }}">{{ data["verification"]["injuries"][1] }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rest Days -->
+        <div class="context-grid">
+            <div class="data-panel">
+                <h3>Rest & Recovery</h3>
+                <div class="rest-display">
+                    <div class="rest-team">
+                        <div class="team-name">{{ data["home"] }}</div>
+                        <div class="rest-days">{{ data["home_rest"] }} days</div>
+                        <div class="verification {{ data["verification"]["rest"][0] }}">{{ data["verification"]["rest"][0] }}</div>
+                    </div>
+                    <div class="rest-divider"></div>
+                    <div class="rest-team">
+                        <div class="team-name">{{ data["away"] }}</div>
+                        <div class="rest-days">{{ data["away_rest"] }} days</div>
+                        <div class="verification {{ data["verification"]["rest"][1] }}">{{ data["verification"]["rest"][1] }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-panel">
+                <h3>Head-to-Head</h3>
+                <div class="h2h-display">
+                    {% for result in data["h2h"] %}
+                        <span class="h2h-badge h2h-{{ result }}">{{ result }}</span>
+                    {% end %}
+                    <div class="verification {{ data["verification"]["h2h"] }}">{{ data["verification"]["h2h"] }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Final Verdict -->
+        <div class="verdict-panel">
+            <div class="verdict-header">
+                <h2>Final Verdict</h2>
+            </div>
+            
+            <div class="verdict-content">
+                <div class="best-bet">
+                    <span class="recommendation-badge {{ data["recommendation"].lower().replace(' ', '-') }}">
+                        {{ data["recommendation"] }}
+                    </span>
+                    <div class="best-bet-text">
+                        <div class="best-bet-market">{{ data["best_bet"].upper() }}</div>
+                        <div class="best-bet-edge">{{ "{:+.1f}%".format(data["best_edge"]) }} edge</div>
+                    </div>
+                </div>
+                
+                <div class="confidence-final">
+                    <div class="confidence-label">Confidence</div>
+                    <div class="confidence-badge">
+                        {% if data["confidence"] >= 0.7 %}
+                            MEDIUM-HIGH
+                        {% elif data["confidence"] >= 0.5 %}
+                            MEDIUM
+                        {% else %}
+                            LOW
+                        {% end %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ static_url('js/app.js') }}"></script>
+</body>
+</html>

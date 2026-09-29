@@ -1,0 +1,2 @@
+CACHE_TTL_MINUTES = 60
+DEBUG = True
